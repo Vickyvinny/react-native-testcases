@@ -121,6 +121,7 @@ const RegisterScreen = () => {
           placeholder="Enter password"
           secureTextEntry
           text="Password"
+          isHaveIcon
         />
         {passwordError ? (
           <Text style={styles.errorText}>{passwordError}</Text>

@@ -1,13 +1,14 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
-import {StyleSheet} from 'react-native';
 import Home from '../screens/Home';
 import Login from '../screens/Login';
 import Register from '../screens/Register';
+import SampleFlatlist from '../screens/SampleFlatlist';
 const Stack = createNativeStackNavigator();
 const StackNavigation = () => {
   return (
     <Stack.Navigator>
+      <Stack.Screen name="flatlist" component={SampleFlatlist} />
       <Stack.Screen
         name="Login"
         component={Login}
@@ -24,5 +25,3 @@ const StackNavigation = () => {
 };
 
 export default StackNavigation;
-
-const styles = StyleSheet.create({});

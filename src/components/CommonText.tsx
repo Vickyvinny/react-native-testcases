@@ -1,5 +1,6 @@
 import React from 'react';
 import {StyleSheet, Text} from 'react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 interface IProps {
   text: string;
   fontSize?: number;

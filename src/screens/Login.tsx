@@ -78,6 +78,7 @@ const LoginScreen = () => {
           placeholder="Enter password"
           secureTextEntry
           text="Password"
+          isHaveIcon
         />
         {passwordError && (
           <Text style={styles.errorText} testID="errorPassword">
