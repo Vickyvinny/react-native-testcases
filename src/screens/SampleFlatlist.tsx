@@ -3,11 +3,12 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
+  StatusBar,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-
+import RNFS from 'react-native-fs';
 type ApiResponse<BEData> = {
   data: BEData;
   status: 'INITIAL' | 'SUCCCESS' | 'FAIL' | 'LOADING';
@@ -31,7 +32,10 @@ const SampleFlatlist = () => {
     errorMessage: '',
   });
   const [page, setPage] = useState<number>(1);
-
+  const [downloadedImageUri, setDownloadedImageUri] = useState<string | null>(
+    null,
+  );
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const fetchMoreProducts = () => {
     const newPage = page + 1;
     setPage(newPage);
@@ -64,14 +68,37 @@ const SampleFlatlist = () => {
       });
     }
   };
-
+  const handleDownload = async (url: string) => {
+    const filename = url.split('/').pop();
+    const downloadDest = `${RNFS.DocumentDirectoryPath}/${filename}`;
+    setIsDownloading(true);
+    try {
+      const response = await RNFS.downloadFile({
+        fromUrl: url,
+        toFile: downloadDest,
+      }).promise;
+      setDownloadedImageUri(downloadDest);
+      setIsDownloading(false);
+      console.log('Image downloaded to', downloadDest);
+    } catch (error) {
+      setIsDownloading(false);
+      console.error('Error downloading image', error);
+    }
+  };
   return (
     <View
       style={{
         justifyContent: 'center',
         alignItems: 'center',
         flex: 1,
+        marginVertical: 40,
+        backgroundColor: '#fff',
       }}>
+      <StatusBar
+        translucent
+        backgroundColor={'rgba(0,0,0,0)'}
+        barStyle="dark-content"
+      />
       {products.length == 0 && (
         <TouchableOpacity
           onPress={() =>
@@ -82,12 +109,25 @@ const SampleFlatlist = () => {
             padding: 5,
             width: 120,
             borderRadius: 10,
+            marginTop: 20,
           }}>
           <Text
             style={{color: 'white', textAlign: 'center', fontWeight: '700'}}>
             {products.length > 0 ? 'Get More Products' : 'Get Products...'}
           </Text>
         </TouchableOpacity>
+      )}
+      {downloadedImageUri ? (
+        <Image
+          source={{uri: `file://${downloadedImageUri}`}}
+          style={{
+            width: 300,
+            height: 200,
+            marginBottom: 20,
+          }}
+        />
+      ) : (
+        <Text>No image downloaded yet</Text>
       )}
       <FlatList
         ListFooterComponent={() => {
@@ -96,7 +136,7 @@ const SampleFlatlist = () => {
           }
           return (
             <View style={{padding: 20}}>
-              <ActivityIndicator />
+              <ActivityIndicator color={'orange'} size={'large'} />
             </View>
           );
         }}
@@ -110,23 +150,44 @@ const SampleFlatlist = () => {
         onEndReached={fetchMoreProducts}
         maxToRenderPerBatch={10}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{gap: 10}}
+        contentContainerStyle={{paddingHorizontal: 10, gap: 10}}
         windowSize={10}
         renderItem={({item}) => {
           return (
-            <View style={{flex: 1}}>
-              <Image
-                source={{uri: item.download_url}}
-                style={{width: 300, height: 200}}
-              />
-              <Text style={{textAlign: 'center'}}>ID: {item.id}</Text>
-              <Text style={{textAlign: 'center'}}>Author: {item.author}</Text>
-              <Text style={{textAlign: 'center'}}>Width: {item.width}</Text>
-              <Text style={{textAlign: 'center'}}>Height: {item.height}</Text>
-              <Text style={{textAlign: 'center'}}>URL: {item.url}</Text>
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                paddingHorizontal: 10,
+              }}>
               <View
-                style={{height: 1, backgroundColor: 'gray', marginVertical: 5}}
-              />
+                style={{
+                  elevation: 8,
+                  shadowOffset: {width: 0, height: 4},
+                  shadowColor: 'orange',
+                  shadowOpacity: 0.2,
+                  shadowRadius: 3,
+                  backgroundColor: 'white',
+                  alignItems: 'center',
+                  width: '100%',
+                  borderRadius: 10,
+                  padding: 10,
+                  marginBottom: 10,
+                }}>
+                <Image
+                  source={{uri: item.download_url}}
+                  style={{width: '100%', height: 200}}
+                />
+                <View style={{padding: 10}}>
+                  <Text style={{textAlign: 'center'}}>{item.author}</Text>
+                  <Text style={{textAlign: 'center'}}> {item.url}</Text>
+                  <TouchableOpacity
+                    onPress={() => handleDownload(item.download_url)}>
+                    <Text>Download</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           );
         }}

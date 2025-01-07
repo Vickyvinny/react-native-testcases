@@ -8,7 +8,11 @@ const Stack = createNativeStackNavigator();
 const StackNavigation = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="flatlist" component={SampleFlatlist} />
+      <Stack.Screen
+        name="flatlist"
+        component={SampleFlatlist}
+        options={{headerShown: false}}
+      />
       <Stack.Screen
         name="Login"
         component={Login}
